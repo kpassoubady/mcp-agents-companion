@@ -1,0 +1,14 @@
+{
+  "users": [
+    {
+      "id": "user_1",
+      "role": "course-admin",
+      "status": "active"
+    },
+    {
+      "id": "user_2",
+      "role": "course-reader",
+      "status": "inactive"
+    }
+  ]
+}
