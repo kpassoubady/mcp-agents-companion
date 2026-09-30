@@ -154,16 +154,24 @@ errors, the allowlist, and redacted per-request audits. Explain first, then patc
 run npm --prefix start run verify, and quote the complete output.
 ```
 
-Register the built custom server in the same selected client, or retain automated fallback evidence:
+### Register the server you built
+
+The client must launch the compiled entry point, not the TypeScript source. Keep the terminal at the lab root.
+
+#### Claude Code
 
 ```bash
 LAB_ROOT="$(pwd)"
 claude mcp add --scope local --transport stdio course-secure-lookup \
   -- node "$LAB_ROOT/start/dist/server.js"
-claude mcp list
+claude mcp get course-secure-lookup
 ```
 
-For VS Code, add this sibling entry to `.vscode/mcp.json` with the exact `LAB_ROOT` path:
+Start `claude` from the same lab root. Enter `/mcp`, select `course-secure-lookup`, and confirm that only `lookup_user` is available.
+
+#### VS Code with GitHub Copilot
+
+Add this sibling entry to `.vscode/mcp.json`, replacing `/ABSOLUTE/LAB_ROOT` with the exact path printed by `printf '%s\n' "$LAB_ROOT"`:
 
 ```json
 "course-secure-lookup": {
@@ -173,7 +181,41 @@ For VS Code, add this sibling entry to `.vscode/mcp.json` with the exact `LAB_RO
 }
 ```
 
-Ask for `user_1`, then `admin_999`. Inspect the host approval and server stderr/audit output. If the client path fails, the passing verifier is the automated fallback; it is not permission to weaken any check.
+Use the configuration editor's **Start** action. Open Copilot Chat in Agent mode and confirm that only `lookup_user` is available.
+
+### Use the completed server
+
+Run the same two requests in your selected client. Inspect the proposed tool and arguments before approval.
+
+#### 1. Prove the allow path
+
+```text
+Use lookup_user to look up user_1. Show the tool name and arguments for
+approval, then summarize the result.
+```
+
+Expected evidence:
+
+- The client proposes `lookup_user` with `{"id":"user_1"}`.
+- The server returns `Role: Admin, Status: Active`.
+- The corresponding audit event has `decision` set to `ALLOW` and `outcome` set to `success`.
+- The audit event does not contain the identifier, arguments, or returned record.
+
+#### 2. Prove the deny path
+
+```text
+Use lookup_user to look up admin_999. Show the tool name and arguments for
+approval, then report the server response.
+```
+
+Expected evidence:
+
+- The client proposes `lookup_user` with `{"id":"admin_999"}`.
+- Host approval allows the call to reach the server, but the server returns a generic `Access denied.` error with `isError`.
+- The corresponding audit event has `decision` set to `DENY` and `outcome` set to `id_not_allowed`.
+- The audit event does not contain `admin_999` or the request arguments.
+
+If your client exposes MCP server logs, inspect the redacted audit events there. Otherwise, use the passing verifier output as audit evidence. If registration, policy, discovery, or approval blocks the client after two minutes, keep the verifier as the automated fallback and continue. The fallback is not permission to weaken any check.
 
 ## Phase 5: Review, map, and share out (7 minutes)
 
