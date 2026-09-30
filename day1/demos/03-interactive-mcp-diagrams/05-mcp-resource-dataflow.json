@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "MCP Resource Retrieval Data Flow",
+    "locale": "en",
+    "output": "05-mcp-resource-dataflow.html",
+    "animation": "trace",
+    "quality_profile": "showcase",
+    "viewBox": [1080, 560],
+    "views": [
+      { "id": "discover-request", "label": "Discover and Request", "focus": ["need", "host", "client", "server"], "note": "The host discovers resources and requests only the URI needed for the task." },
+      { "id": "authorize-read", "label": "Authorize and Read", "focus": ["server", "authorization", "source"], "note": "The server validates the URI and authorization before reading the source." },
+      { "id": "govern-context", "label": "Govern Context", "focus": ["source", "context-gate", "model", "answer"], "note": "The host minimizes and selects returned content before placing it in model context." }
+    ]
+  },
+  "stages": [
+    { "label": "Need" },
+    { "label": "Discover + Request" },
+    { "label": "Resolve + Authorize" },
+    { "label": "Read + Govern" },
+    { "label": "Use" }
+  ],
+  "nodes": [
+    { "id": "need", "type": "external", "label": "Context Need", "sublabel": "user or agent task", "stage": 0, "row": 1, "tag": "intent" },
+    { "id": "host", "type": "frontend", "label": "MCP Host", "sublabel": "resources/list", "stage": 1, "row": 0, "tag": "selects URI" },
+    { "id": "client", "type": "backend", "label": "MCP Client", "sublabel": "resources/read", "stage": 1, "row": 2, "tag": "session" },
+    { "id": "authorization", "type": "security", "label": "Resource Gate", "sublabel": "identity + URI check", "stage": 2, "row": 0, "tag": "least privilege" },
+    { "id": "server", "type": "cloud", "label": "MCP Server", "sublabel": "resolve resource URI", "stage": 2, "row": 2, "tag": "mediates access" },
+    { "id": "context-gate", "type": "security", "label": "Context Gate", "sublabel": "minimize + sensitivity", "stage": 3, "row": 0, "width": 130, "tag": "size limit" },
+    { "id": "source", "type": "database", "label": "Authorized Source", "sublabel": "text or binary content", "stage": 3, "row": 2, "tag": "metadata" },
+    { "id": "model", "type": "backend", "label": "Model Context", "sublabel": "selected content only", "stage": 4, "row": 0, "tag": "host controlled" },
+    { "id": "answer", "type": "external", "label": "User-facing Answer", "sublabel": "grounded response", "stage": 4, "row": 2, "tag": "result" }
+  ],
+  "flows": [
+    { "id": "need-to-host", "from": "need", "to": "host", "label": "context requirement", "classification": "intent", "variant": "emphasis" },
+    { "id": "host-to-client", "from": "host", "to": "client", "label": "selected resource URI", "classification": "control", "variant": "default" },
+    { "id": "client-to-server", "from": "client", "to": "server", "label": "resources/read", "classification": "JSON-RPC 2.0 request", "variant": "emphasis", "labelDy": 53 },
+    { "id": "server-to-gate", "from": "server", "to": "authorization", "label": "URI + caller context", "classification": "security decision", "variant": "security" },
+    { "id": "gate-to-source", "from": "authorization", "to": "source", "label": "authorized read", "classification": "least privilege", "variant": "security" },
+    { "id": "source-to-context", "from": "source", "to": "context-gate", "label": "content + metadata", "classification": "untrusted input", "variant": "default" },
+    { "id": "context-to-model", "from": "context-gate", "to": "model", "label": "selected minimized content", "classification": "working context", "variant": "security", "labelDy": 53 },
+    { "id": "model-to-answer", "from": "model", "to": "answer", "label": "grounded response", "classification": "model output", "variant": "default" }
+  ]
+}

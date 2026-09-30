@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "MCP Tools, Resources, and Prompts",
+    "locale": "en",
+    "output": "04-mcp-primitives.html",
+    "quality_profile": "showcase",
+    "viewBox": [1390, 720],
+    "views": [
+      { "id": "capability-surface", "label": "Capability Surface", "focus": ["host", "client", "server", "tools", "resources", "prompts"], "note": "A server advertises any supported subset of the three principal server capability types." },
+      { "id": "tools-view", "label": "Tools", "focus": ["server", "tools"], "note": "Choose a tool for an executable, schema-defined operation that may have side effects." },
+      { "id": "resources-view", "label": "Resources", "focus": ["server", "resources"], "note": "Choose a resource for addressable data or context identified by a URI." },
+      { "id": "prompts-view", "label": "Prompts", "focus": ["server", "prompts"], "note": "Choose a prompt for a reusable, named template or guided workflow." }
+    ]
+  },
+  "components": [
+    { "id": "user", "type": "external", "label": "User", "sublabel": "goal or explicit choice", "pos": [35, 300], "size": [135, 68] },
+    { "id": "host", "type": "frontend", "label": "MCP Host", "sublabel": "selects and presents", "pos": [225, 300], "size": [150, 68] },
+    { "id": "client", "type": "backend", "label": "MCP Client", "sublabel": "discovers capabilities", "pos": [435, 300], "size": [155, 68] },
+    { "id": "server", "type": "cloud", "label": "MCP Server", "sublabel": "advertises supported subset", "pos": [660, 300], "size": [175, 68], "tag": "not all are required" },
+    { "id": "tools", "type": "backend", "label": "Tools", "sublabel": "executable operations", "pos": [930, 115], "size": [185, 72], "tag": "create_issue" },
+    { "id": "resources", "type": "database", "label": "Resources", "sublabel": "URI-addressed context", "pos": [1120, 300], "size": [185, 72], "tag": "file:///project/README.md" },
+    { "id": "prompts", "type": "messagebus", "label": "Prompts", "sublabel": "reusable templates", "pos": [930, 485], "size": [185, 72], "tag": "review_code" }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Host environment", "wraps": ["host", "client"], "pad": 22 },
+    { "kind": "region", "label": "Server capability surface", "wraps": ["server", "tools", "resources", "prompts"], "pad": 24 }
+  ],
+  "connections": [
+    { "id": "user-host", "from": "user", "to": "host", "label": "intent", "variant": "emphasis", "labelDy": 57 },
+    { "id": "host-client", "from": "host", "to": "client", "label": "discover / use", "variant": "default", "labelDy": 57 },
+    { "id": "client-server", "from": "client", "to": "server", "label": "MCP requests", "variant": "emphasis", "labelDy": 57 },
+    { "id": "server-tools", "from": "server", "to": "tools", "label": "tools/list • tools/call", "variant": "emphasis" },
+    { "id": "server-resources", "from": "server", "to": "resources", "label": "resources/list • resources/read", "variant": "default", "labelDy": 57 },
+    { "id": "server-prompts", "from": "server", "to": "prompts", "label": "prompts/list • prompts/get", "variant": "dashed" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Tools — Choose for Action", "items": ["Model-selectable executable operations", "Typed input schema defines valid arguments", "May cause side effects, so validate and authorize"] },
+    { "dot": "emerald", "title": "Resources — Choose for Context", "items": ["Addressable text or binary data identified by URI", "Read through resource operations", "Exposure does not automatically place content in model context"] },
+    { "dot": "violet", "title": "Prompts — Choose for Reuse", "items": ["Named templates or guided workflows", "May accept arguments", "Returns messages or prompt content for the host to present"] }
+  ]
+}

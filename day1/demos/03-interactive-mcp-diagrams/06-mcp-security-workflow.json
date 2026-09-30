@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "MCP Security and Trust Workflow",
+    "locale": "en",
+    "output": "06-mcp-security-workflow.html",
+    "quality_profile": "showcase",
+    "viewBox": [1180, 760],
+    "views": [
+      { "id": "onboard", "label": "Onboard Server", "focus": ["verify-server", "review-surface"], "note": "Inventory, identity, origin, and capability review happen before trust is granted." },
+      { "id": "authorize", "label": "Authorize Action", "focus": ["authorize-action", "deny"], "note": "Least privilege and user consent constrain sensitive operations before execution." },
+      { "id": "enforce", "label": "Enforce at Server", "focus": ["enforce-call"], "note": "Strict validation, target allowlists, execution, and output handling remain server responsibilities." },
+      { "id": "evidence", "label": "Record Evidence", "focus": ["enforce-call", "audit-return", "deny"], "note": "Redacted evidence records allowed and denied outcomes." }
+    ]
+  },
+  "lanes": [
+    { "id": "inventory", "label": "Server Inventory" },
+    { "id": "host", "label": "Host Governance" },
+    { "id": "server", "label": "Server Enforcement" },
+    { "id": "outcomes", "label": "Evidence + Outcomes", "variant": "exception" }
+  ],
+  "phases": [
+    { "id": "trust", "label": "Establish trust", "fromCol": 0, "toCol": 1, "variant": "security" },
+    { "id": "authorize", "label": "Authorize", "fromCol": 2, "toCol": 2, "variant": "emphasis" },
+    { "id": "enforce", "label": "Enforce", "fromCol": 3, "toCol": 4, "variant": "security" },
+    { "id": "record", "label": "Record", "fromCol": 5, "toCol": 5, "variant": "dashed" }
+  ],
+  "mainPath": ["verify-server", "review-surface", "authorize-action", "enforce-call", "audit-return"],
+  "nodes": [
+    { "id": "verify-server", "lane": "inventory", "col": 0, "type": "security", "label": "Verify", "sublabel": "inventory + origin", "tag": "identity" },
+    { "id": "review-surface", "lane": "inventory", "col": 1, "type": "frontend", "label": "Review", "sublabel": "capability risk", "tag": "bounded" },
+    { "id": "authorize-action", "lane": "host", "col": 2, "type": "security", "label": "Authorize", "sublabel": "least privilege", "tag": "policy" },
+    { "id": "enforce-call", "lane": "server", "col": 4, "width": 140, "type": "backend", "label": "Validate + Execute", "sublabel": "schema • allowlist • redact", "tag": "bounded" },
+    { "id": "audit-return", "lane": "outcomes", "col": 5, "type": "database", "label": "Audit + Return", "sublabel": "redacted evidence", "tag": "success" },
+    { "id": "deny", "lane": "outcomes", "col": 3, "type": "security", "label": "Deny", "sublabel": "error + audit", "tag": "denied" }
+  ],
+  "edges": [
+    { "id": "verify-review", "from": "verify-server", "to": "review-surface", "variant": "security", "role": "main" },
+    { "id": "review-authorize", "from": "review-surface", "to": "authorize-action", "variant": "security", "role": "main" },
+    { "id": "authorize-enforce", "from": "authorize-action", "to": "enforce-call", "variant": "emphasis", "role": "main" },
+    { "id": "enforce-audit", "from": "enforce-call", "to": "audit-return", "variant": "emphasis", "role": "main" },
+    { "id": "authorization-deny", "from": "authorize-action", "to": "deny", "label": "policy deny", "variant": "security", "role": "error", "labelDx": -36 },
+    { "id": "enforcement-deny", "from": "enforce-call", "to": "deny", "label": "invalid or unsafe", "variant": "security", "role": "error", "labelDx": 80 },
+    { "id": "deny-audit", "from": "deny", "to": "audit-return", "variant": "dashed", "role": "async" }
+  ]
+}

@@ -1,50 +1,53 @@
-# Demo: Configuring a Pre-built Read-only Server
+# Demo: Connecting Claude to a Real MCP Server
 
-Use the reviewed, student-accessible project at `../mcp-agents-companion/day1/prebuilt-readonly-server`. It pins the MCP SDK and exposes one fixed read-only tool over supplied synthetic data. It has no path input, mutation tool, credentials, production data, or in-class download.
+Connect a host (Claude Code or VS Code/Copilot) to `../mcp-agents-companion/day1/weather-server` — a real MCP server over the free, keyless [National Weather Service API](https://www.weather.gov/documentation/services-web-api). No API key, no synthetic data. Ask a real question and get a real answer.
 
 **Duration:** 7 minutes. Demonstrate one client path per cohort; keep the other path available for questions.
 
 ## Pre-class preparation
 
-From the instructor repository root, confirm Node.js 22 or later and install exactly what the companion lockfile records:
+From the instructor repository root, confirm Node.js 22 or later and install the companion server's dependencies:
 
 ```bash
 node --version
-npm --prefix ../mcp-agents-companion/day1/prebuilt-readonly-server ci
-npm --prefix ../mcp-agents-companion/day1/prebuilt-readonly-server run verify
+npm --prefix ../mcp-agents-companion/day1/weather-server ci
+npm --prefix ../mcp-agents-companion/day1/weather-server run verify
 ```
 
-Expected fallback signals are:
+Expected output:
 
 ```text
-PASS discovered only read_course_users
-PASS invoked the fixed read-only tool over MCP stdio
-PASS synthetic users matched expected values
-PASS arbitrary path input was denied
+PASS discovered get_alerts and get_forecast
+PASS get_forecast returned live NWS data
+PASS get_alerts returned live NWS data
 ```
 
-The synthetic result contains `user_1` with active status and `user_2` with inactive status. Do not continue with a live host unless the verifier passes. No network is required after `npm ci`.
+This requires network access to `api.weather.gov`. Do not continue with a live host unless the verifier passes.
 
 ## Claude Code path
 
 Use a local-scope entry so the demonstration does not commit configuration. From the instructor repository root, run:
 
 ```bash
-SERVER_ROOT="$(cd ../mcp-agents-companion/day1/prebuilt-readonly-server && pwd)"
-claude mcp add --scope local --transport stdio course-readonly-users \
+SERVER_ROOT="$(cd ../mcp-agents-companion/day1/weather-server && pwd)"
+claude mcp add --scope local --transport stdio weather \
   -- node "$SERVER_ROOT/server.mjs"
-claude mcp get course-readonly-users
+claude mcp get weather
 ```
 
-The client configuration registers how the host starts the server; the server does not register itself. Start Claude Code from the same instructor repository root, open `/mcp`, and confirm that only `read_course_users` is discoverable.
+Start Claude Code from the same instructor repository root, open `/mcp`, and confirm that `get_forecast` and `get_alerts` are discoverable.
 
-Use this representative prompt:
+Ask it directly, live, in front of the class:
 
 ```text
-Use course-readonly-users to call read_course_users and report user_1's status.
+What's the weather forecast for Sacramento, CA? (latitude 38.5816, longitude -121.4944)
 ```
 
-Point out the proposed tool call before approval. It has no arguments and cannot select another file or operation. Ask learners which boundary is acting, approve once, and show the synthetic result. Host approval is a host control; the server's fixed read-only capability is an independent boundary.
+```text
+Are there any active weather alerts in Texas?
+```
+
+Point out the proposed tool call before approving it — the exact latitude/longitude or state code the model chose, and which tool it picked. Approve it and read the real forecast or alert back to the class. Then ask learners for their own city's coordinates and run it again live.
 
 ## GitHub Copilot in VS Code path
 
@@ -53,40 +56,37 @@ Open the companion repository root as the VS Code workspace. Run **MCP: Open Wor
 ```json
 {
   "servers": {
-    "course-readonly-users": {
+    "weather": {
       "type": "stdio",
       "command": "node",
       "args": [
-        "${workspaceFolder}/day1/prebuilt-readonly-server/server.mjs"
+        "${workspaceFolder}/day1/weather-server/server.mjs"
       ]
     }
   }
 }
 ```
 
-Use the configuration editor's **Start** action, open Copilot Chat in Agent mode, and confirm that only `read_course_users` is discovered. Use the representative prompt above. Show the proposed fixed read operation, the host confirmation control when policy requires it, and the exact synthetic result. State what is visible rather than claiming that every host always prompts.
-
-The workspace file registers the server command with the VS Code MCP client. The server defines its one tool and does not write client configuration.
+Use the configuration editor's **Start** action, open Copilot Chat in Agent mode, and confirm that `get_forecast` and `get_alerts` are discovered. Use the same prompts as above. Show the proposed tool call, the host confirmation control when policy requires it, and the live result.
 
 ## Offline fallback
 
 If host login, policy, discovery, or approval prevents the live path, spend no more than one minute troubleshooting. Run:
 
 ```bash
-npm --prefix ../mcp-agents-companion/day1/prebuilt-readonly-server run verify
+npm --prefix ../mcp-agents-companion/day1/weather-server run verify
 ```
 
-Narrate discovery, invocation, the exact synthetic result, and the rejected path argument. This fallback proves the MCP interaction but does not simulate a model proposal or host approval interface.
+Narrate discovery and invocation as the verifier output scrolls — it calls the same live API the host would have called. This fallback proves the MCP interaction but does not simulate a model proposal or host approval interface.
 
 ## AM/PM cleanup and reset
 
 After each cohort:
 
-1. Run `claude mcp remove --scope local course-readonly-users` and confirm the entry is absent.
+1. Run `claude mcp remove --scope local weather` and confirm the entry is absent.
 2. For VS Code, stop the server and remove its temporary entry. Do not commit `.vscode/mcp.json`.
-3. Close host sessions and rerun the verifier before the next cohort.
-4. Confirm `data/users.json` still contains only the two documented synthetic records.
+3. Close host sessions before the next cohort.
 
 ## Debrief
 
-The host's MCP client registers the connection command and discovers capabilities. The supplied server exposes one fixed read-only tool. The model may propose a call, the host applies its approval policy, and the server still restricts execution to the supplied synthetic operation.
+The host's MCP client registers the connection command and discovers capabilities. The server exposes two real, read-only tools backed by a live public API — nothing synthetic, nothing local-only. The model proposes a call with arguments it inferred from the question, the host applies its approval policy, and the server executes exactly that call against `api.weather.gov`.

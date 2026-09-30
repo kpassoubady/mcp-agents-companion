@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "MCP System Architecture",
+    "locale": "en",
+    "output": "01-mcp-system-architecture.html",
+    "quality_profile": "showcase",
+    "viewBox": [1280, 720],
+    "views": [
+      { "id": "big-picture", "label": "Big Picture", "focus": ["user", "host", "local-client", "remote-client", "local-server", "remote-server", "local-systems", "remote-systems"], "note": "Follow the host-managed path from a user goal to bounded external capabilities." },
+      { "id": "host-clients", "label": "Host and Clients", "focus": ["user", "host", "model", "local-client", "remote-client"], "note": "The host contains the model-facing experience and manages a separate client session per server." },
+      { "id": "server-capabilities", "label": "Server Capabilities", "focus": ["local-server", "remote-server", "local-systems", "remote-systems"], "note": "Servers expose tools, resources, and prompts while mediating access to underlying systems." },
+      { "id": "local-connection", "label": "Local Connection", "focus": ["host", "local-client", "local-server", "local-systems"], "note": "A representative local server communicates over stdio using JSON-RPC 2.0 messages." },
+      { "id": "remote-connection", "label": "Remote Connection", "focus": ["host", "remote-client", "remote-server", "remote-systems"], "note": "A representative remote server communicates over Streamable HTTP across a network boundary." }
+    ]
+  },
+  "components": [
+    { "id": "user", "type": "external", "label": "User", "sublabel": "goal and consent", "pos": [40, 305], "size": [130, 66] },
+    { "id": "host", "type": "frontend", "label": "MCP Host", "sublabel": "user-facing AI application", "pos": [230, 305], "size": [160, 66], "tag": "orchestrates" },
+    { "id": "model", "type": "cloud", "label": "Model / Agent", "sublabel": "proposes actions", "pos": [230, 125], "size": [160, 66], "tag": "provider-neutral" },
+    { "id": "local-client", "type": "backend", "label": "MCP Client A", "sublabel": "local server session", "pos": [470, 245], "size": [160, 66], "tag": "1:1 session" },
+    { "id": "remote-client", "type": "backend", "label": "MCP Client B", "sublabel": "remote server session", "pos": [470, 425], "size": [160, 66], "tag": "1:1 session" },
+    { "id": "local-server", "type": "backend", "label": "Local MCP Server", "sublabel": "tools • resources • prompts", "pos": [730, 245], "size": [180, 66], "tag": "capability surface" },
+    { "id": "remote-server", "type": "cloud", "label": "Remote MCP Server", "sublabel": "tools • resources • prompts", "pos": [730, 425], "size": [180, 66], "tag": "capability surface" },
+    { "id": "local-systems", "type": "database", "label": "Local Data", "sublabel": "files and local services", "pos": [1010, 245], "size": [170, 66], "tag": "authorized access" },
+    { "id": "remote-systems", "type": "external", "label": "External Systems", "sublabel": "databases • SaaS • APIs", "pos": [1010, 425], "size": [170, 66], "tag": "authorized access" }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "User device / host environment", "wraps": ["host", "model", "local-client", "remote-client"], "pad": 24 },
+    { "kind": "security-group", "label": "Local server process", "wraps": ["local-server"], "pad": 18 },
+    { "kind": "security-group", "label": "Remote network service", "wraps": ["remote-server"], "pad": 18 },
+    { "kind": "region", "label": "External data and action systems", "wraps": ["local-systems", "remote-systems"], "pad": 22 }
+  ],
+  "connections": [
+    { "id": "user-host", "from": "user", "to": "host", "label": "goal / result", "variant": "emphasis", "labelDy": 57 },
+    { "id": "host-model", "from": "host", "to": "model", "label": "context / proposal", "variant": "dashed" },
+    { "id": "host-local-client", "from": "host", "to": "local-client", "label": "manages client", "variant": "default" },
+    { "id": "host-remote-client", "from": "host", "to": "remote-client", "label": "manages client", "variant": "default" },
+    { "id": "local-protocol", "from": "local-client", "to": "local-server", "label": "JSON-RPC 2.0 over stdio", "variant": "emphasis", "labelDy": 57 },
+    { "id": "remote-protocol", "from": "remote-client", "to": "remote-server", "label": "JSON-RPC 2.0 over Streamable HTTP", "variant": "emphasis", "labelDy": 57 },
+    { "id": "local-access", "from": "local-server", "to": "local-systems", "label": "bounded read / action", "variant": "security", "labelDy": 57 },
+    { "id": "remote-access", "from": "remote-server", "to": "remote-systems", "label": "authorized API access", "variant": "security", "labelDy": 57 }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Role Separation", "items": ["The host owns the user experience and creates MCP clients", "Each client maintains one server session", "The model proposes actions; it does not connect directly to external systems"] },
+    { "dot": "rose", "title": "Trust Boundary", "items": ["An MCP server mediates access; it is not the database or SaaS system", "Local and remote connections cross different trust boundaries", "Authorization remains necessary behind protocol interoperability"] }
+  ]
+}

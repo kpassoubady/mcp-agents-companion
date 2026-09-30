@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "diagram_type": "lifecycle",
+  "meta": {
+    "title": "MCP Session Lifecycle",
+    "locale": "en",
+    "output": "07-mcp-session-lifecycle.html",
+    "quality_profile": "showcase",
+    "viewBox": [1080, 630],
+    "views": [
+      { "id": "connect-initialize", "label": "Connect and Initialize", "focus": ["disconnected", "connecting", "initializing", "ready"], "note": "Transport connection and initialization establish a ready session." },
+      { "id": "request-cycle", "label": "Request Cycle", "focus": ["ready", "processing"], "note": "A ready session processes requests and returns to Ready after each response." },
+      { "id": "recover", "label": "Recover", "focus": ["processing", "recoverable-error", "ready"], "note": "A transient failure can retry into an active state instead of becoming terminal." },
+      { "id": "close", "label": "Close or Reject", "focus": ["initializing", "closing", "closed", "rejected"], "note": "Graceful closure and unrecoverable negotiation or transport failures are terminal." }
+    ]
+  },
+  "lanes": [
+    { "id": "main", "label": "Session phases" },
+    { "id": "activity", "label": "Request activity" },
+    { "id": "recovery", "label": "Recovery loop" },
+    { "id": "terminal", "label": "Terminal outcomes" }
+  ],
+  "states": [
+    { "id": "disconnected", "type": "start", "label": "Disconnected", "sublabel": "no transport", "lane": "main", "col": 0, "step": "01", "tag": "entry" },
+    { "id": "connecting", "type": "active", "label": "Connecting", "sublabel": "open transport", "lane": "main", "col": 1, "step": "02", "tag": "stdio / HTTP" },
+    { "id": "initializing", "type": "active", "label": "Initializing", "sublabel": "initialize exchange", "lane": "main", "col": 2, "step": "03", "tag": "negotiate" },
+    { "id": "ready", "type": "success", "label": "Ready", "sublabel": "initialized", "lane": "main", "col": 3, "step": "04", "tag": "requests allowed" },
+    { "id": "closing", "type": "neutral", "label": "Closing", "sublabel": "graceful shutdown", "lane": "main", "col": 4, "step": "05", "tag": "cleanup" },
+    { "id": "processing", "type": "active", "label": "Processing Request", "sublabel": "request / response", "lane": "activity", "col": 1, "tag": "active" },
+    { "id": "recoverable-error", "type": "failure", "label": "Recoverable Error", "sublabel": "timeout or transient fault", "lane": "recovery", "col": 2, "yOffset": 90, "tag": "retryable" },
+    { "id": "rejected", "type": "failure", "label": "Session Rejected", "sublabel": "mismatch / fatal", "lane": "terminal", "col": 0, "tag": "terminal" },
+    { "id": "closed", "type": "neutral", "label": "Closed", "sublabel": "resources released", "lane": "terminal", "col": 2, "tag": "terminal" }
+  ],
+  "transitions": [
+    { "id": "request-cycle", "from": "ready", "to": "processing", "label": "request / response cycle", "variant": "emphasis", "route": "straight", "fromSide": "bottom", "toSide": "top", "labelAt": [510, 225] },
+    { "id": "transient-failure", "from": "processing", "to": "recoverable-error", "label": "timeout / transient failure", "variant": "security", "route": "bottom-channel", "labelAt": [550, 440] },
+    { "id": "retry-ready", "from": "recoverable-error", "to": "ready", "label": "retry", "variant": "emphasis", "route": "top-channel", "labelAt": [710, 350] },
+    { "id": "negotiation-rejected", "from": "initializing", "to": "rejected", "label": "mismatch / fatal failure", "variant": "security", "route": "straight", "fromSide": "bottom", "toSide": "top", "labelDy": 24 },
+    { "id": "close-complete", "from": "closing", "to": "closed", "label": "cleanup complete", "variant": "default", "route": "right-channel", "labelDx": 60 }
+  ]
+}

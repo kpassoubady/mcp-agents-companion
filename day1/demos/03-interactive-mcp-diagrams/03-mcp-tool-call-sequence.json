@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "MCP Tool Discovery and Invocation",
+    "locale": "en",
+    "output": "03-mcp-tool-call-sequence.html",
+    "animation": "trace",
+    "quality_profile": "showcase",
+    "column_fit": "spread",
+    "viewBox": [1080, 520],
+    "views": [
+      { "id": "discover", "label": "Discover", "focus": ["host", "client", "server"], "note": "The client retrieves tool names, descriptions, and input schemas before a model can select one." },
+      { "id": "approve", "label": "Select and Approve", "focus": ["user", "host", "client"], "note": "The model proposes a tool; host policy and user approval apply when required." },
+      { "id": "execute", "label": "Validate and Execute", "focus": ["client", "server", "external"], "note": "The server validates arguments before invoking its authorized downstream system." },
+      { "id": "return", "label": "Return Result", "focus": ["external", "server", "client", "host", "user"], "note": "Structured content or an error returns through the host before the model answers." }
+    ]
+  },
+  "participants": [
+    { "id": "user", "type": "external", "label": "User", "sublabel": "goal and approval" },
+    { "id": "host", "type": "frontend", "label": "MCP Host / Agent", "sublabel": "model + policy" },
+    { "id": "client", "type": "backend", "label": "MCP Client", "sublabel": "protocol session" },
+    { "id": "server", "type": "cloud", "label": "MCP Server", "sublabel": "validation + execution" },
+    { "id": "external", "type": "database", "label": "External System", "sublabel": "authorized target" }
+  ],
+  "segments": [
+    { "from": 150, "to": 225, "label": "Discovery" },
+    { "from": 230, "to": 305, "label": "Goal, selection, and policy" },
+    { "from": 310, "to": 418, "label": "Invocation and execution" },
+    { "from": 422, "to": 447, "label": "Result and answer" }
+  ],
+  "messages": [
+    { "id": "list-tools", "from": "client", "to": "server", "y": 170, "label": "tools/list", "variant": "emphasis" },
+    { "id": "tool-definitions", "from": "server", "to": "client", "y": 198, "label": "names + descriptions + input schemas", "variant": "return" },
+    { "id": "publish-tools", "from": "client", "to": "host", "y": 220, "label": "available tool definitions", "variant": "return" },
+    { "id": "submit-goal", "from": "user", "to": "host", "y": 242, "label": "submit goal", "variant": "default" },
+    { "id": "request-approval", "from": "host", "to": "user", "y": 270, "label": "request approval when policy requires", "variant": "security" },
+    { "id": "approval-decision", "from": "user", "to": "host", "y": 298, "label": "allow or deny", "variant": "return" },
+    { "id": "call-tool", "from": "host", "to": "client", "y": 320, "label": "selected tool + arguments", "variant": "emphasis" },
+    { "id": "tools-call", "from": "client", "to": "server", "y": 342, "label": "tools/call", "variant": "emphasis" },
+    { "id": "invoke-external", "from": "server", "to": "external", "y": 364, "label": "validated authorized operation", "variant": "security" },
+    { "id": "external-result", "from": "external", "to": "server", "y": 392, "label": "downstream result", "variant": "return" },
+    { "id": "tool-result", "from": "server", "to": "client", "y": 414, "label": "structured content or error result", "variant": "return" },
+    { "id": "result-to-host", "from": "client", "to": "host", "y": 426, "label": "tool result", "variant": "return" },
+    { "id": "answer-user", "from": "host", "to": "user", "y": 436, "label": "user-facing answer", "variant": "return" }
+  ],
+  "activations": [
+    { "participant": "host", "from": 215, "to": 444, "type": "frontend" },
+    { "participant": "client", "from": 165, "to": 432, "type": "backend" },
+    { "participant": "server", "from": 165, "to": 420, "type": "cloud" },
+    { "participant": "external", "from": 358, "to": 398, "type": "database" }
+  ]
+}

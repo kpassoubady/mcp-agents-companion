@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "MCP Connection and Initialization",
+    "locale": "en",
+    "output": "02-mcp-initialization-sequence.html",
+    "quality_profile": "showcase",
+    "column_fit": "spread",
+    "viewBox": [1080, 480],
+    "views": [
+      { "id": "connect", "label": "Connect", "focus": ["user", "host", "client", "server"], "note": "The host creates a client and the client establishes the selected transport." },
+      { "id": "negotiate", "label": "Negotiate", "focus": ["client", "server"], "note": "initialize exchanges versions, implementation information, and capabilities." },
+      { "id": "ready", "label": "Ready and Discover", "focus": ["host", "client", "server"], "note": "notifications/initialized completes setup before capability discovery begins." }
+    ]
+  },
+  "participants": [
+    { "id": "user", "type": "external", "label": "User", "sublabel": "starts host" },
+    { "id": "host", "type": "frontend", "label": "MCP Host", "sublabel": "manages clients" },
+    { "id": "client", "type": "backend", "label": "MCP Client", "sublabel": "one server session" },
+    { "id": "server", "type": "cloud", "label": "MCP Server", "sublabel": "capability provider" }
+  ],
+  "segments": [
+    { "from": 150, "to": 230, "label": "Create and connect" },
+    { "from": 238, "to": 330, "label": "Initialize and negotiate" },
+    { "from": 330, "to": 410, "label": "Ready and discover" }
+  ],
+  "messages": [
+    { "id": "start-host", "from": "user", "to": "host", "y": 170, "label": "start or configure host", "variant": "default" },
+    { "id": "create-client", "from": "host", "to": "client", "y": 195, "label": "create client", "variant": "emphasis" },
+    { "id": "connect-transport", "from": "client", "to": "server", "y": 220, "label": "establish transport", "variant": "default", "note": "For example, stdio locally or Streamable HTTP remotely." },
+    { "id": "initialize-request", "from": "client", "to": "server", "y": 250, "label": "initialize request", "variant": "emphasis", "note": "Includes protocol version, client information, and client capabilities." },
+    { "id": "initialize-response", "from": "server", "to": "client", "y": 280, "label": "initialize result", "variant": "return", "note": "Returns negotiated protocol version, server information, and server capabilities." },
+    { "id": "initialized-notification", "from": "client", "to": "server", "y": 313, "label": "notifications/initialized", "variant": "dashed", "note": "Notification only; no response is expected." },
+    { "id": "session-ready", "from": "client", "to": "host", "y": 320, "label": "session ready", "variant": "return" },
+    { "id": "tools-list", "from": "client", "to": "server", "y": 341, "label": "tools/list", "variant": "default" },
+    { "id": "tools-result", "from": "server", "to": "client", "y": 369, "label": "tool definitions", "variant": "return" },
+    { "id": "other-discovery", "from": "client", "to": "server", "y": 397, "label": "resources/list or prompts/list", "variant": "dashed" }
+  ],
+  "activations": [
+    { "participant": "host", "from": 165, "to": 330, "type": "frontend" },
+    { "participant": "client", "from": 190, "to": 410, "type": "backend" },
+    { "participant": "server", "from": 215, "to": 410, "type": "cloud" }
+  ]
+}
