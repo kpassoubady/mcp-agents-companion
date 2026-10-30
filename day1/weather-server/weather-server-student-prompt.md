@@ -1,5 +1,3 @@
-Markdown · weather-server-student-prompt.md
-
 # Build Your Own Weather MCP Server
 
 ## Overview

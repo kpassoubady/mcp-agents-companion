@@ -48,7 +48,8 @@
       "Edit(/tmp/**)",
       "Read(//Users/kangs/.claude/**)",
       "Read(//Users/kangs/.copilot/**)",
-      "mcp__weather__get_forecast"
+      "mcp__weather__get_forecast",
+      "mcp__weather__get_alerts"
     ],
     "deny": [
       "Bash(rm*)",
