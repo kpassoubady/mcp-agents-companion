@@ -47,7 +47,8 @@
       "Write(/tmp/**)",
       "Edit(/tmp/**)",
       "Read(//Users/kangs/.claude/**)",
-      "Read(//Users/kangs/.copilot/**)"
+      "Read(//Users/kangs/.copilot/**)",
+      "mcp__weather__get_forecast"
     ],
     "deny": [
       "Bash(rm*)",
@@ -66,5 +67,8 @@
       "/Users/kangs/code/github",
       "/dev"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "release-readiness-demo"
+  ]
 }
